@@ -288,7 +288,7 @@ def retry_with_backoff(func, max_retries=3, initial_delay=2):
     return None
 
 # Hàm phân tích bằng Gemini với retry logic
-def analyze_with_gemini(api_key, data_source, data_content, model_name='gemini-1.5-flash'):
+def analyze_with_gemini(api_key, data_source, data_content):
     """Phân tích dữ liệu bằng Gemini với retry logic"""
     if not GENAI_AVAILABLE:
         return "⚠️ Thư viện Google Generative AI chưa được cài đặt.\nVui lòng chạy: pip install google-generativeai"
@@ -303,7 +303,7 @@ def analyze_with_gemini(api_key, data_source, data_content, model_name='gemini-1
         configure_gemini(api_key)
         
         def make_request():
-            model = genai.GenerativeModel(model_name)
+            model = genai.GenerativeModel('gemini-2.0-flash')
             
             if data_source == "file":
                 prompt = f"""
@@ -432,20 +432,6 @@ with st.sidebar:
     st.markdown("### 🔑 Cấu Hình API")
     api_key = st.text_input("Nhập Gemini API Key:", type="password", help="Nhập API key từ Google AI Studio")
     
-    # Chọn model
-    st.markdown("### 🤖 Chọn Model AI")
-    model_options = {
-        'Gemini 1.5 Flash (Nhanh - Khuyến nghị)': 'gemini-1.5-flash',
-        'Gemini 1.5 Pro (Chất lượng cao)': 'gemini-1.5-pro',
-        'Gemini 2.0 Flash (Mới nhất)': 'gemini-2.0-flash'
-    }
-    selected_model_display = st.selectbox(
-        "Model:",
-        options=list(model_options.keys()),
-        help="Chọn model phù hợp với API key của bạn"
-    )
-    selected_model = model_options[selected_model_display]
-    
     if api_key and GENAI_AVAILABLE:
         if configure_gemini(api_key):
             st.success("✅ API Key hợp lệ!")
@@ -469,16 +455,6 @@ with st.sidebar:
                 st.session_state.data_modified = False
                 st.success("✅ Trích xuất thành công!")
                 st.rerun()
-    
-    st.markdown("---")
-    with st.expander("ℹ️ Hướng dẫn xử lý lỗi Rate Limit"):
-        st.markdown("""
-        **Nếu gặp lỗi 429:**
-        1. Đợi 1-2 phút
-        2. Chọn model khác
-        3. Kiểm tra quota: [AI Studio](https://ai.dev/usage)
-        4. Tạo API key mới nếu cần
-        """)
 
 # HEADER
 st.markdown('<div class="main-header">🏦 HỆ THỐNG THẨM ĐỊNH PHƯƠNG ÁN KINH DOANH</div>', unsafe_allow_html=True)
@@ -791,8 +767,6 @@ if st.session_state.data_extracted:
         elif not GENAI_AVAILABLE:
             st.error("⚠️ Thư viện google-generativeai chưa được cài đặt!")
         else:
-            st.info(f"🤖 **Model đang sử dụng:** {selected_model_display}")
-            
             col1, col2 = st.columns(2)
             
             with col1:
@@ -800,7 +774,7 @@ if st.session_state.data_extracted:
                 if st.button("🔍 Phân Tích File", use_container_width=True):
                     if st.session_state.uploaded_content:
                         with st.spinner("Đang phân tích..."):
-                            analysis = analyze_with_gemini(api_key, "file", st.session_state.uploaded_content, selected_model)
+                            analysis = analyze_with_gemini(api_key, "file", st.session_state.uploaded_content)
                             st.session_state.analysis_file = analysis
                 
                 if 'analysis_file' in st.session_state:
@@ -837,7 +811,7 @@ TÀI SẢN ĐẢM BẢO:
 - LTV: {(st.session_state.financial_info.get('loan_amount', 0) / st.session_state.collateral_info.get('value', 1) * 100):.2f}%
 """
                         with st.spinner("Đang phân tích..."):
-                            analysis = analyze_with_gemini(api_key, "metrics", data_content, selected_model)
+                            analysis = analyze_with_gemini(api_key, "metrics", data_content)
                             st.session_state.analysis_metrics = analysis
                 
                 if 'analysis_metrics' in st.session_state:
@@ -854,8 +828,6 @@ TÀI SẢN ĐẢM BẢO:
         elif not GENAI_AVAILABLE:
             st.error("⚠️ Thư viện google-generativeai chưa được cài đặt!")
         else:
-            st.info(f"🤖 **Model đang sử dụng:** {selected_model_display}")
-            
             chat_container = st.container()
             with chat_container:
                 for i, chat in enumerate(st.session_state.chat_history):
@@ -895,7 +867,7 @@ Thông tin khách hàng và dự án:
                                 configure_gemini(api_key)
                                 
                                 def chat_request():
-                                    model = genai.GenerativeModel(selected_model)
+                                    model = genai.GenerativeModel('gemini-2.0-flash')
                                     prompt = f"{context}\n\nCâu hỏi: {user_input}"
                                     response = model.generate_content(prompt)
                                     st.session_state.last_request_time = time.time()
@@ -1023,7 +995,7 @@ else:
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666; padding: 1rem;'>
-    <p>🏦 Hệ Thống Thẩm Định Phương Án Kinh Doanh v1.1</p>
-    <p>Powered by Streamlit & Google Gemini AI | With Rate Limit Protection</p>
+    <p>🏦 Hệ Thống Thẩm Định Phương Án Kinh Doanh v1.2</p>
+    <p>Powered by Streamlit & Google Gemini 2.0 Flash AI</p>
 </div>
 """, unsafe_allow_html=True)
