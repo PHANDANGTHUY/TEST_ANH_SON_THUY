@@ -437,7 +437,7 @@ with st.sidebar:
     model_options = {
         'Gemini 1.5 Flash (Nhanh - Khuyến nghị)': 'gemini-1.5-flash',
         'Gemini 1.5 Pro (Chất lượng cao)': 'gemini-1.5-pro',
-        'Gemini 2.0 Flash Exp (Thử nghiệm)': 'gemini-2.0-flash-exp'
+        'Gemini 2.0 Flash (Mới nhất)': 'gemini-2.0-flash'
     }
     selected_model_display = st.selectbox(
         "Model:",
