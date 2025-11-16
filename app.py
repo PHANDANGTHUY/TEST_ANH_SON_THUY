@@ -531,33 +531,49 @@ if st.session_state.data_extracted:
         with col1:
             st.markdown("#### Thông Tin Vay Vốn")
             purpose = st.text_area("Mục đích vay:", value=st.session_state.financial_info.get('purpose', ''), height=80)
-            total_need = st.number_input("Tổng nhu cầu vốn (đồng):", 
-                                        value=float(st.session_state.financial_info.get('total_need', 0)),
-                                        step=1000000.0, format="%.0f")
-            equity = st.number_input("Vốn đối ứng (đồng):", 
-                                    value=float(st.session_state.financial_info.get('equity', 0)),
-                                    step=1000000.0, format="%.0f")
-            loan_amount = st.number_input("Số tiền vay (đồng):", 
-                                         value=float(st.session_state.financial_info.get('loan_amount', 0)),
-                                         step=1000000.0, format="%.0f")
-            interest_rate = st.number_input("Lãi suất (%/năm):", 
-                                           value=float(st.session_state.financial_info.get('interest_rate', 8.5)),
-                                           step=0.1, format="%.2f")
-            loan_term = st.number_input("Thời hạn vay (tháng):", 
-                                       value=int(st.session_state.financial_info.get('loan_term', 60)),
-                                       step=1, format="%d")
+            
+            total_need_input = st.text_input("Tổng nhu cầu vốn (đồng):", 
+                                        value=format_number(st.session_state.financial_info.get('total_need', 0)),
+                                        help="Nhập số, có thể dùng dấu chấm phân cách")
+            total_need = parse_number(total_need_input)
+            
+            equity_input = st.text_input("Vốn đối ứng (đồng):", 
+                                    value=format_number(st.session_state.financial_info.get('equity', 0)),
+                                    help="Nhập số, có thể dùng dấu chấm phân cách")
+            equity = parse_number(equity_input)
+            
+            loan_amount_input = st.text_input("Số tiền vay (đồng):", 
+                                         value=format_number(st.session_state.financial_info.get('loan_amount', 0)),
+                                         help="Nhập số, có thể dùng dấu chấm phân cách")
+            loan_amount = parse_number(loan_amount_input)
+            
+            interest_rate_input = st.text_input("Lãi suất (%/năm):", 
+                                           value=str(st.session_state.financial_info.get('interest_rate', 8.5)).replace('.', ','),
+                                           help="Ví dụ: 8,5 hoặc 8.5")
+            interest_rate = float(interest_rate_input.replace(',', '.')) if interest_rate_input else 0
+            
+            loan_term_input = st.text_input("Thời hạn vay (tháng):", 
+                                       value=str(int(st.session_state.financial_info.get('loan_term', 60))),
+                                       help="Nhập số tháng")
+            loan_term = int(loan_term_input) if loan_term_input else 0
         
         with col2:
             st.markdown("#### Thu Chi Hàng Tháng")
-            monthly_income = st.number_input("Thu nhập hàng tháng (đồng):", 
-                                            value=float(st.session_state.financial_info.get('monthly_income', 0)),
-                                            step=1000000.0, format="%.0f")
-            monthly_expense = st.number_input("Chi phí hàng tháng (đồng):", 
-                                             value=float(st.session_state.financial_info.get('monthly_expense', 0)),
-                                             step=1000000.0, format="%.0f")
-            project_income = st.number_input("Thu nhập từ dự án (đồng/tháng):", 
-                                            value=float(st.session_state.financial_info.get('project_income', 0)),
-                                            step=1000000.0, format="%.0f")
+            
+            monthly_income_input = st.text_input("Thu nhập hàng tháng (đồng):", 
+                                            value=format_number(st.session_state.financial_info.get('monthly_income', 0)),
+                                            help="Nhập số, có thể dùng dấu chấm phân cách")
+            monthly_income = parse_number(monthly_income_input)
+            
+            monthly_expense_input = st.text_input("Chi phí hàng tháng (đồng):", 
+                                             value=format_number(st.session_state.financial_info.get('monthly_expense', 0)),
+                                             help="Nhập số, có thể dùng dấu chấm phân cách")
+            monthly_expense = parse_number(monthly_expense_input)
+            
+            project_income_input = st.text_input("Thu nhập từ dự án (đồng/tháng):", 
+                                            value=format_number(st.session_state.financial_info.get('project_income', 0)),
+                                            help="Nhập số, có thể dùng dấu chấm phân cách")
+            project_income = parse_number(project_income_input)
             
             if total_need > 0:
                 equity_ratio = (equity / total_need) * 100
@@ -587,12 +603,16 @@ if st.session_state.data_extracted:
         with col1:
             collateral_type = st.text_input("Loại tài sản:", 
                                            value=st.session_state.collateral_info.get('type', ''))
-            collateral_value = st.number_input("Giá trị tài sản (đồng):", 
-                                              value=float(st.session_state.collateral_info.get('value', 0)),
-                                              step=1000000.0, format="%.0f")
-            collateral_area = st.number_input("Diện tích (m²):", 
-                                             value=float(st.session_state.collateral_info.get('area', 0)),
-                                             step=1.0, format="%.2f")
+            
+            collateral_value_input = st.text_input("Giá trị tài sản (đồng):", 
+                                              value=format_number(st.session_state.collateral_info.get('value', 0)),
+                                              help="Nhập số, có thể dùng dấu chấm phân cách")
+            collateral_value = parse_number(collateral_value_input)
+            
+            collateral_area_input = st.text_input("Diện tích (m²):", 
+                                             value=str(st.session_state.collateral_info.get('area', 0)).replace('.', ','),
+                                             help="Ví dụ: 120,50 hoặc 120.5")
+            collateral_area = float(collateral_area_input.replace(',', '.')) if collateral_area_input else 0
         
         with col2:
             collateral_address = st.text_area("Địa chỉ tài sản:", 
